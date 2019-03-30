@@ -6,11 +6,12 @@ import socket
 import os
 import csv
 
-def fields_extraction(x):
-    print(x.sprintf('{IP:%IP.src%,%IP.dst%,%IP.len%,%IP.proto%,}'
-        '{TCP:%TCP.sport%,%TCP.dport%,}'
-        '{UDP:%UDP.sport%,%UDP.dport%}'))
+label = sys.argv[1:]
 
+def fields_extraction(x):
+    #print(x.sprintf('{IP:%IP.src%,%IP.dst%,%IP.len%,%IP.proto%,}'
+        #'{TCP:%TCP.sport%,%TCP.dport%,}'
+        #'{UDP:%UDP.sport%,%UDP.dport%}'))
     print(x.summary())
 
     #use x.time for time information on the pkts
@@ -18,26 +19,31 @@ def fields_extraction(x):
 pkts = sniff(prn = fields_extraction, count = 10)
 #pkts[0].show()
 
-"""
+flowList = []
+for i in range(len(pkts)):
+    flowList.append([])
 
-make new list for each packet filled with important packet info + analysis on IP.len
+    flowList[i].append(pkts[i].proto)
+    flowList[i].append(pkts[i].sprintf('%IP.src%'))
+    flowList[i].append(pkts[i].sprintf('%IP.dst%'))
+    flowList[i].append(pkts[i].sport)
+    flowList[i].append(pkts[i].dport)
+    flowList[i].append(pkts[i].len)
+    flowList[i].append(label)
 
-for loop that pairs together members of new list
+headers = ['proto', 'IP src', 'IP dest', 'src port', 'dest port', 'packet len', 'label']
+csvData = []
 
-"""
-
-""" example of how to reference values in packets """
-print("PROTOCOL USED IN FIRST PACKET: %s" % pkts[0].sprintf('IP:%IP.proto%,'))
-
-""" fake labels for csv file columns, we'll need to assign these one at a time """
-headers = []
-for i in range(len(pkts[0])):
-    headers.append(i+1)
-
-""" will hold every row for pktData.csv, starting with labels """
-csvData = [headers, [], []]
 
 """ writes csvData to pktData.csv """
-with open('pktData.csv', 'w') as csvFile:
+with open('pktData.csv', 'a') as csvFile:
+    if os.stat("pktData.csv").st_size == 0:
+        csvData.append(headers)
+
+    for j in range(7):
+        csvData.append(flowList[j])
+        
     writer = csv.writer(csvFile)
     writer.writerows(csvData)
+
+csvFile.close()
