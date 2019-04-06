@@ -7,7 +7,7 @@ import os
 import csv
 
 label = int(sys.argv[1])
-numPackets = 200
+numPackets = 500
 
 def fields_extraction(x):
     #print(x.sprintf('{IP:%IP.src%,%IP.dst%,%IP.len%,%IP.proto%,}'
@@ -29,15 +29,15 @@ class flow:
     def setIdentifiers(self):
         #dictionary of tuples for each value
         self.identifiers = {
-            'IP': (self.pkt[1], self.pkt[2]),
-            'ports': (self.pkt[3], self.pkt[4]),
+            'IP': (self.pkt[0], self.pkt[1]),
+            'ports': (self.pkt[2], self.pkt[3]),
             'length': self.pkt[5]
         }
     #gets a new packet passed in, and checks if the packet's values are in the dictionary
     #for IP addresses and ports
     def checkConnections(self, pkt):
-        if (pkt[1] in self.identifiers['IP'] and pkt[2] in self.identifiers['IP']):
-            if (pkt[3] in self.identifiers['ports'] and pkt[4] in self.identifiers['ports']):
+        if (pkt[0] in self.identifiers['IP'] and pkt[1] in self.identifiers['IP']):
+            if (pkt[2] in self.identifiers['ports'] and pkt[3] in self.identifiers['ports']):
                 return True
 
         return False
@@ -49,11 +49,17 @@ for i in range(len(pkts)):
     try:
         pktList.append([])
 
-        pktList[i].append(pkts[i].proto)
         pktList[i].append(pkts[i].sprintf('%IP.src%'))
         pktList[i].append(pkts[i].sprintf('%IP.dst%'))
         pktList[i].append(pkts[i].sport)
         pktList[i].append(pkts[i].dport)
+        #assign UDP as 0
+        if pkts[i].proto == 17:
+            pktList[i].append(0)
+        #assign TCP as 1
+        if pkts[i].proto == 6:
+            pktList[i].append(1)
+        #pktList[i].append(pkts[i].proto)
         pktList[i].append(pkts[i].len)
         pktList[i].append(label)
         #if no flows identified yet, add the first packet
@@ -87,13 +93,13 @@ for i in range(len(pkts)):
         print('ARP BOY')
         continue
 
-headers = ['proto', 'IP src', 'IP dest', 'src port', 'dest port', 'packet len', 'label', 'flow id']
+headers = ['IP src', 'IP dest', 'src port', 'dest port', 'proto', 'packet len', 'label', 'flow id']
+
+fileName = str(numPackets) + 'pktData.csv'
 
 csvData = []
 """ writes csvData to pktData.csv """
-with open('pktData.csv', 'a') as file:
-    if os.stat("pktData.csv").st_size == 0:
-        csvData.append(headers)
+with open(fileName, 'a') as file:
 
     for j in range(numPackets):
         csvData.append(pktList[j])
