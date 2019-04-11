@@ -5,6 +5,9 @@ import sys
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import f1_score
 from sklearn.svm import SVC
 from sklearn.svm import LinearSVC
 from sklearn import tree
@@ -24,6 +27,7 @@ y = df['label']
 acc_scores = 0
 totalResult = 0
 testSetRange = 30
+
 for i in range(0, testSetRange):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .25)
 
@@ -42,7 +46,8 @@ for i in range(0, testSetRange):
 
 
     #here you are supposed to calculate the evaluation measures indicated in the project proposal (accuracy, F-score etc)
-    result = clf.score(X_test, y_test)  #accuracy score
+    accuracy = clf.score(X_test, y_test)  #accuracy score
+
     #print each result individually before calculating the average
     print(result)
     totalResult += result
