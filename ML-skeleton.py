@@ -17,9 +17,9 @@ fileName = numPackets + 'pktData.csv'
 
 df = pd.read_csv(fileName, header=None)
 #columns listed in the order they are listed in the csv file
-columns_list = ['IP src', 'IP dest', 'src port', 'dest port', 'proto', 'packet len', 'label', 'flow id']
+columns_list = ['IP src', 'IP dest', 'src port', 'dest port', 'proto', 'packet len', 'ttl', 'chksum', 'label', 'flow id']
 df.columns = columns_list
-features = ['proto', 'packet len', 'flow id']
+features = ['proto', 'packet len', 'ttl', 'chksum', 'flow id']
 
 X = df[features]
 y = df['label']
@@ -34,11 +34,13 @@ totalRecall = 0
 totalf1 = 0
 
 for i in range(0, testSetRange):
-	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .5)
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .25)
 
 	#Decision Trees
 	clf = tree.DecisionTreeClassifier()
 	clf.fit(X_train, y_train)
+
+        prediction = clf.predict(X_test)
 
 	# Neural network (MultiPerceptron Classifier)
 	#clf = MLPClassifier()
@@ -54,11 +56,12 @@ for i in range(0, testSetRange):
 	
 	yTest = np.array(y_test)
 	yTrain= np.array(y_train)
+
+	precision = precision_score(yTest, prediction, average = 'weighted')
+	recall = recall_score(yTest, prediction, average = 'weighted')
+	f1 = f1_score(yTest, prediction, average = 'weighted')
 	
-	precision = precision_score(yTrain, yTest, average = 'weighted')
-	recall = recall_score(yTrain, yTest, average = 'weighted')
-	f1 = f1_score(yTrain, yTest, average = 'weighted')
-	
+        print('precision: ' + str(precision))
 
 	totalAccuracy += accuracy
 	totalPrecision += precision
@@ -75,4 +78,3 @@ print('Average Accuracy: ' + str(avgAccuracy))
 print('Average Precision: ' + str(avgPrecision))
 print('Average Recall: ' + str(avgRecall))
 print('Average F1: ' + str(avgf1))
-	
