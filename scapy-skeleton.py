@@ -7,7 +7,7 @@ import os
 import csv
 #take in label as command line argument
 label = int(sys.argv[1])
-numPackets = 500
+numPackets = 50
 
 def fields_extraction(x):
     print(x.summary())
@@ -54,6 +54,8 @@ for i in range(len(pkts)):
         if pkts[i].proto == 6:
             pktList[i].append(1)
         pktList[i].append(pkts[i].len)
+        pktList[i].append(pkts[i].ttl)
+        pktList[i].append(pkts[i].chksum)
         pktList[i].append(label)
         #if no flows identified yet, add the first packet as first flow
         if flowList == None:
