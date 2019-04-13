@@ -28,29 +28,51 @@ acc_scores = 0
 totalResult = 0
 testSetRange = 30
 
+totalAccuracy = 0
+totalPrecision = 0
+totalRecall = 0
+totalf1 = 0
+
 for i in range(0, testSetRange):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .25)
+	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .5)
 
-    #Decision Trees
-    clf = tree.DecisionTreeClassifier()
-    clf.fit(X_train, y_train)
+	#Decision Trees
+	clf = tree.DecisionTreeClassifier()
+	clf.fit(X_train, y_train)
 
-    # Neural network (MultiPerceptron Classifier)
-    #clf = MLPClassifier()
-    #clf.fit(X_train, y_train)
+	# Neural network (MultiPerceptron Classifier)
+	#clf = MLPClassifier()
+	#clf.fit(X_train, y_train)
 
-    #SVM's
-    #clf = SVC(gamma='auto')     #SVC USE THIS
-    #clf = LinearSVC()  #Linear SVC
-    #clf.fit(X_train, y_train)
+	#SVM's
+	#clf = SVC(gamma='auto')	 #SVC USE THIS
+	#clf = LinearSVC()  #Linear SVC
+	#clf.fit(X_train, y_train)
 
+	#here you are supposed to calculate the evaluation measures indicated in the project proposal (accuracy, F-score etc)
+	accuracy = clf.score(X_test, y_test)  #accuracy score
+	
+	yTest = np.array(y_test)
+	yTrain= np.array(y_train)
+	
+	precision = precision_score(yTrain, yTest, average = 'weighted')
+	recall = recall_score(yTrain, yTest, average = 'weighted')
+	f1 = f1_score(yTrain, yTest, average = 'weighted')
+	
 
-    #here you are supposed to calculate the evaluation measures indicated in the project proposal (accuracy, F-score etc)
-    accuracy = clf.score(X_test, y_test)  #accuracy score
+	totalAccuracy += accuracy
+	totalPrecision += precision
+	totalRecall += recall
+	totalf1 += f1
+	
+avgAccuracy = totalAccuracy / testSetRange
+avgPrecision = totalPrecision / testSetRange
+avgRecall = totalRecall / testSetRange
+avgf1 = totalf1/testSetRange
 
-    #print each result individually before calculating the average
-    print(result)
-    totalResult += result
-#find average accuracy rating and print it out
-avgResult = totalResult / testSetRange
-print('AVERAGE = ' + str(avgResult))
+#Print average of all metrics
+print('Average Accuracy: ' + str(avgAccuracy))
+print('Average Precision: ' + str(avgPrecision))
+print('Average Recall: ' + str(avgRecall))
+print('Average F1: ' + str(avgf1))
+	
