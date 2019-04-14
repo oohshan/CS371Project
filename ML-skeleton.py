@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import csv
 import sys
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score
@@ -26,12 +27,17 @@ y = df['label']
 
 acc_scores = 0
 totalResult = 0
-testSetRange = 30
+testSetRange = 10
 
-totalAccuracy = 0
+'''totalAccuracy = 0
 totalPrecision = 0
 totalRecall = 0
-totalf1 = 0
+totalf1 = 0 '''
+
+accuracyList = []
+precisionList = []
+recallList = []
+f1List = []
 
 for i in range(0, testSetRange):
 	X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = .25)
@@ -39,8 +45,6 @@ for i in range(0, testSetRange):
 	#Decision Trees
 	clf = tree.DecisionTreeClassifier()
 	clf.fit(X_train, y_train)
-
-        prediction = clf.predict(X_test)
 
 	# Neural network (MultiPerceptron Classifier)
 	#clf = MLPClassifier()
@@ -50,6 +54,8 @@ for i in range(0, testSetRange):
 	#clf = SVC(gamma='auto')	 #SVC USE THIS
 	#clf = LinearSVC()  #Linear SVC
 	#clf.fit(X_train, y_train)
+	
+	prediction = clf.predict(X_test)
 
 	#here you are supposed to calculate the evaluation measures indicated in the project proposal (accuracy, F-score etc)
 	accuracy = clf.score(X_test, y_test)  #accuracy score
@@ -57,24 +63,39 @@ for i in range(0, testSetRange):
 	yTest = np.array(y_test)
 	yTrain= np.array(y_train)
 
+	#calculate precision, recall, and f1 scores
 	precision = precision_score(yTest, prediction, average = 'weighted')
 	recall = recall_score(yTest, prediction, average = 'weighted')
 	f1 = f1_score(yTest, prediction, average = 'weighted')
 	
-        print('precision: ' + str(precision))
-
-	totalAccuracy += accuracy
-	totalPrecision += precision
-	totalRecall += recall
-	totalf1 += f1
+	#add accuracy, precision, recall, and f1 scores to lists
+	accuracyList.append(accuracy)
+	precisionList.append(precision)
+	recallList.append(recall)
+	f1List.append(f1)
 	
-avgAccuracy = totalAccuracy / testSetRange
-avgPrecision = totalPrecision / testSetRange
-avgRecall = totalRecall / testSetRange
-avgf1 = totalf1/testSetRange
+	#calculate average value of each metric
+	avgAccuracy = sum(accuracyList)/len(accuracyList)
+	avgPrecision = sum(precisionList)/len(precisionList)
+	avgRecall = sum(recallList)/len(recallList)
+	avgf1 = sum(f1List)/len(f1List)
 
-#Print average of all metrics
-print('Average Accuracy: ' + str(avgAccuracy))
-print('Average Precision: ' + str(avgPrecision))
-print('Average Recall: ' + str(avgRecall))
-print('Average F1: ' + str(avgf1))
+N = 4
+ind = np.arange(N)
+width = .35
+
+plot_accuracy = plt.bar(ind,avgAccuracy, width)
+plot_precision = plt.bar(ind,avgPrecision, width)
+plot_recall = plt.bar(ind,avgRecall, width)
+plot_f1 = plt.bar(ind,avgf1, width)
+
+plt.title('Decision Tree Metrics')
+# Be sure to choose the right title based on the Machine Learning Type
+
+# plt.title('Neural Network Metrics')
+# plt.title('SVM Metrics')
+
+plt.ylabel('Score')
+plt.xticks(ind, ('Accuracy', 'Precision', 'Recall', 'F1 Score'))
+plt.yticks(np.arange(0,1.0,.05))
+plt.show()
